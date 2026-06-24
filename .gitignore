@@ -1,0 +1,22 @@
+# system files we don't want leaking
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ide and config stuff
+.vscode/
+.idea/
+.env
+
+# keep downloaded videos and audio out of the repo
+*.mp4
+*.mp3
+*.m4a
+*.srt
+*.mkv
+*.webm
+Playlist/
+Downloads/
+
+# logs
+*.log
