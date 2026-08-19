@@ -20,3 +20,16 @@ Downloads/
 
 # logs
 *.log
+
+# Xcode
+build/
+DerivedData/
+*.xcuserdata
+xcuserdata/
+*.xcworkspace
+
+# Generated Xcode project (regenerate with: xcodegen generate)
+EasyDLP.xcodeproj/
+
+# Bundled binaries (too large for git)
+EasyDLP/Resources/bin/
