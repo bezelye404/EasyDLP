@@ -25,10 +25,9 @@ class YtDlpService {
     /// Mirrors the exact yt-dlp flags from the original shell/batch scripts.
     func buildArguments(for task: DownloadTask, downloadDir: URL, ffmpegURL: URL?) -> [String] {
         var args = [String]()
-        
-        // Add workaround for HTTP 403 Forbidden on YouTube
-        args += ["--extractor-args", "youtube:player-client=ios,android,web"]
-        
+
+        // Let yt-dlp pick the best client (currently android_vr) — full DASH formats, no 403
+        args += ["--extractor-args", "youtube:player-client=default"]
         if let ffmpeg = ffmpegURL {
             args += ["--ffmpeg-location", ffmpeg.path]
         }
@@ -105,6 +104,12 @@ class YtDlpService {
             ]
         }
 
+        // Avoid stale cached video URLs and IPv6 CDN issues
+        args += ["--no-cache-dir", "--force-ipv4"]
+
+        // Retry on transient 403 errors during download
+        args += ["--retries", "10", "--fragment-retries", "10"]
+
         // Force one progress line per update (instead of \r overwrites)
         args += ["--newline"]
 
@@ -130,7 +135,11 @@ class YtDlpService {
 
         let ffmpegURL = await BinaryManager.shared.ffmpegURL
         let arguments = buildArguments(for: task, downloadDir: downloadDir, ffmpegURL: ffmpegURL)
-        let environment = await BinaryManager.shared.buildEnvironment()
+
+        // Debug: log the full command so we can diagnose issues
+        print("▶ yt-dlp binary: \(ytDlpURL.path)")
+        print("▶ ffmpeg: \(ffmpegURL?.path ?? "NOT FOUND")")
+        print("▶ full command: \(ytDlpURL.path) \(arguments.joined(separator: " "))")
 
         // Ensure download directory exists
         try FileManager.default.createDirectory(
@@ -142,9 +151,17 @@ class YtDlpService {
         let stdoutPipe = Pipe()
         let stderrPipe = Pipe()
 
-        process.executableURL = ytDlpURL
-        process.arguments = arguments
-        process.environment = environment
+        // Run via login shell to inherit the full terminal environment,
+        // which avoids HTTP 403 errors caused by missing env vars in GUI apps.
+        let shellCommand = ([ytDlpURL.path] + arguments)
+            .map { arg in
+                // Shell-escape each argument
+                "'\(arg.replacingOccurrences(of: "'", with: "'\\''"))'"
+            }
+            .joined(separator: " ")
+
+        process.executableURL = URL(fileURLWithPath: "/bin/zsh")
+        process.arguments = ["-l", "-c", shellCommand]
         process.standardOutput = stdoutPipe
         process.standardError = stderrPipe
 
@@ -214,14 +231,14 @@ class YtDlpService {
             throw ServiceError.binaryNotFound
         }
 
-        let environment = await BinaryManager.shared.buildEnvironment()
+
 
         let process = Process()
         let pipe = Pipe()
 
-        process.executableURL = ytDlpURL
-        process.arguments = ["-F", url]
-        process.environment = environment
+        let shellCommand = "'\(ytDlpURL.path)' '-F' '\(url.replacingOccurrences(of: "'", with: "'\\''"))'"
+        process.executableURL = URL(fileURLWithPath: "/bin/zsh")
+        process.arguments = ["-l", "-c", shellCommand]
         process.standardOutput = pipe
         process.standardError = pipe
 
