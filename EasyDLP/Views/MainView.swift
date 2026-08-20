@@ -34,7 +34,7 @@ struct MainView: View {
             ToolbarItem(placement: .principal) {
                 HStack(spacing: 6) {
                     Image(systemName: "play.rectangle.fill")
-                        .foregroundStyle(.brandGold)
+                        .foregroundStyle(Color.brandGold)
                     Text("EasyDLP")
                         .font(.headline)
                 }
@@ -78,12 +78,12 @@ struct MainView: View {
                         .foregroundStyle(.white)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
-                        .background(.brandGold, in: Capsule())
+                        .background(Color.brandGold, in: Capsule())
                 }
             }
         } icon: {
             Image(systemName: item.icon)
-                .foregroundStyle(.brandGold)
+                .foregroundStyle(Color.brandGold)
         }
     }
 

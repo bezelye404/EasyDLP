@@ -118,7 +118,7 @@ struct SettingsView: View {
                 Label("Source", systemImage: "chevron.left.forwardslash.chevron.right")
                 Spacer()
                 Link("GitHub", destination: URL(string: "https://github.com/bezelye404/EasyDLP")!)
-                    .foregroundStyle(.brandGold)
+                    .foregroundStyle(Color.brandGold)
             }
         }
     }

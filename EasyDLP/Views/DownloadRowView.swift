@@ -30,7 +30,7 @@ struct DownloadRowView: View {
 
                 if case .downloading(let progress, _, _) = task.status {
                     ProgressView(value: progress)
-                        .tint(.brandGold)
+                        .tint(Color.brandGold)
                 }
             }
 
@@ -142,7 +142,7 @@ struct DownloadRowView: View {
 
     private var statusColor: Color {
         switch task.status {
-        case .downloading, .merging, .converting, .fetching: .brandGold
+        case .downloading, .merging, .converting, .fetching: Color.brandGold
         case .completed: .green
         case .failed: .red
         case .cancelled: .orange

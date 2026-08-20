@@ -32,8 +32,8 @@ struct NewDownloadView: View {
         .overlay {
             if showDropHighlight {
                 RoundedRectangle(cornerRadius: 16)
-                    .stroke(.brandGold, lineWidth: 3)
-                    .background(.brandGold.opacity(0.05), in: RoundedRectangle(cornerRadius: 16))
+                    .stroke(Color.brandGold, lineWidth: 3)
+                    .background(Color.brandGold.opacity(0.05), in: RoundedRectangle(cornerRadius: 16))
                     .padding(8)
                     .allowsHitTesting(false)
             }
@@ -67,7 +67,7 @@ struct NewDownloadView: View {
         HStack(spacing: 12) {
             Image(systemName: "link")
                 .font(.title3)
-                .foregroundStyle(.brandGold)
+                .foregroundStyle(Color.brandGold)
 
             TextField("Paste video or playlist URL…", text: $url)
                 .textFieldStyle(.plain)
@@ -242,7 +242,7 @@ struct ModeCard: View {
         VStack(spacing: 10) {
             Image(systemName: mode.systemImage)
                 .font(.title2)
-                .foregroundStyle(isSelected ? .white : .brandGold)
+                .foregroundStyle(isSelected ? .white : Color.brandGold)
                 .frame(width: 36, height: 36)
 
             VStack(spacing: 3) {
@@ -276,7 +276,7 @@ struct ModeCard: View {
         )
         .foregroundStyle(isSelected ? .white : .primary)
         .scaleEffect(isSelected ? 1.02 : 1.0)
-        .shadow(color: isSelected ? .brandGold.opacity(0.3) : .clear, radius: 8, y: 4)
+        .shadow(color: isSelected ? Color.brandGold.opacity(0.3) : .clear, radius: 8, y: 4)
         .contentShape(Rectangle())
         .animation(.spring(duration: 0.3), value: isSelected)
     }
@@ -404,7 +404,7 @@ struct FormatSheetView: View {
                 Button("Use This Format") { dismiss() }
                     .disabled(selectedFormatId.isEmpty)
                     .buttonStyle(.borderedProminent)
-                    .tint(.brandGold)
+                    .tint(Color.brandGold)
             }
         }
         .padding(24)
