@@ -25,6 +25,10 @@ class YtDlpService {
     /// Mirrors the exact yt-dlp flags from the original shell/batch scripts.
     func buildArguments(for task: DownloadTask, downloadDir: URL) -> [String] {
         var args = [String]()
+        
+        // Add workaround for HTTP 403 Forbidden on YouTube
+        args += ["--extractor-args", "youtube:player-client=ios,android,web"]
+        
         let outputTemplate = downloadDir.appendingPathComponent("%(title)s.%(ext)s").path
 
         switch task.mode {
@@ -164,6 +168,7 @@ class YtDlpService {
             else { return }
 
             for line in text.components(separatedBy: .newlines) where !line.isEmpty {
+                print("yt-dlp stderr: \(line)")
                 if let event = OutputParser.parse(line: line) {
                     onEvent(event)
                 }
