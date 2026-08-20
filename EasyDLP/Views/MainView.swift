@@ -10,8 +10,8 @@ enum SidebarItem: String, Identifiable, CaseIterable {
 
     var icon: String {
         switch self {
-        case .newDownload: "plus.circle.fill"
-        case .downloads: "arrow.down.circle.fill"
+        case .newDownload: "plus.circle"
+        case .downloads: "arrow.down.circle"
         }
     }
 }
@@ -34,7 +34,7 @@ struct MainView: View {
             ToolbarItem(placement: .principal) {
                 HStack(spacing: 6) {
                     Image(systemName: "play.rectangle.fill")
-                        .foregroundStyle(Color.brandGold)
+                        .foregroundStyle(.secondary)
                     Text("EasyDLP")
                         .font(.headline)
                 }
@@ -74,16 +74,16 @@ struct MainView: View {
                 Spacer()
                 if item == .downloads && downloadManager.activeCount > 0 {
                     Text("\(downloadManager.activeCount)")
-                        .font(.caption2.weight(.bold))
+                        .font(.caption2.weight(.semibold))
                         .foregroundStyle(.white)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
-                        .background(Color.brandGold, in: Capsule())
+                        .background(Color.accentColor, in: Capsule())
                 }
             }
         } icon: {
             Image(systemName: item.icon)
-                .foregroundStyle(Color.brandGold)
+                .foregroundStyle(.secondary)
         }
     }
 

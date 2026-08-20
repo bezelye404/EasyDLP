@@ -6,13 +6,13 @@ struct QualityPicker: View {
     @Binding var selectedQuality: VideoQuality
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 10) {
             Text("Video Quality")
                 .font(.headline)
 
             LazyVGrid(
                 columns: Array(repeating: GridItem(.flexible()), count: 3),
-                spacing: 8
+                spacing: 6
             ) {
                 ForEach(VideoQuality.allCases) { quality in
                     QualityBadge(
@@ -20,7 +20,7 @@ struct QualityPicker: View {
                         isSelected: selectedQuality == quality
                     )
                     .onTapGesture {
-                        withAnimation(.spring(duration: 0.2)) {
+                        withAnimation(.easeInOut(duration: 0.15)) {
                             selectedQuality = quality
                         }
                     }
@@ -38,34 +38,33 @@ struct QualityBadge: View {
     let isSelected: Bool
 
     var body: some View {
-        VStack(spacing: 4) {
+        VStack(spacing: 3) {
             Text(quality.badge)
-                .font(.system(size: 14, weight: .heavy, design: .rounded))
+                .font(.system(size: 13, weight: .semibold, design: .rounded))
 
             Text(quality.shortName)
                 .font(.caption2)
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 10)
+        .padding(.vertical, 8)
         .background {
             if isSelected {
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(LinearGradient.brand)
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(Color.accentColor)
             } else {
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(.regularMaterial)
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(.background)
             }
         }
         .foregroundStyle(isSelected ? .white : .primary)
         .overlay(
-            RoundedRectangle(cornerRadius: 8)
+            RoundedRectangle(cornerRadius: 6)
                 .stroke(
-                    isSelected ? Color.clear : Color.primary.opacity(0.1),
-                    lineWidth: 1
+                    isSelected ? Color.clear : Color.primary.opacity(0.06),
+                    lineWidth: 0.5
                 )
         )
-        .scaleEffect(isSelected ? 1.04 : 1.0)
-        .animation(.spring(duration: 0.2), value: isSelected)
+        .animation(.easeInOut(duration: 0.15), value: isSelected)
         .contentShape(Rectangle())
     }
 }

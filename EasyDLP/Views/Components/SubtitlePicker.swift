@@ -7,13 +7,13 @@ struct SubtitlePicker: View {
     @Binding var customCode: String
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 10) {
             Text("Subtitle Language")
                 .font(.headline)
 
             LazyVGrid(
                 columns: Array(repeating: GridItem(.flexible()), count: 4),
-                spacing: 8
+                spacing: 6
             ) {
                 ForEach(SubtitleLanguage.allCases) { lang in
                     SubtitleBadge(
@@ -21,7 +21,7 @@ struct SubtitlePicker: View {
                         isSelected: selectedLanguage == lang
                     )
                     .onTapGesture {
-                        withAnimation(.spring(duration: 0.2)) {
+                        withAnimation(.easeInOut(duration: 0.15)) {
                             selectedLanguage = lang
                         }
                     }
@@ -51,35 +51,34 @@ struct SubtitleBadge: View {
     let isSelected: Bool
 
     var body: some View {
-        VStack(spacing: 4) {
+        VStack(spacing: 3) {
             Text(language.flag)
-                .font(.title3)
+                .font(.callout)
 
             Text(language.displayName)
                 .font(.caption2)
                 .lineLimit(1)
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 10)
+        .padding(.vertical, 8)
         .background {
             if isSelected {
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(LinearGradient.brand)
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(Color.accentColor)
             } else {
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(.regularMaterial)
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(.background)
             }
         }
         .foregroundStyle(isSelected ? .white : .primary)
         .overlay(
-            RoundedRectangle(cornerRadius: 8)
+            RoundedRectangle(cornerRadius: 6)
                 .stroke(
-                    isSelected ? Color.clear : Color.primary.opacity(0.1),
-                    lineWidth: 1
+                    isSelected ? Color.clear : Color.primary.opacity(0.06),
+                    lineWidth: 0.5
                 )
         )
-        .scaleEffect(isSelected ? 1.04 : 1.0)
-        .animation(.spring(duration: 0.2), value: isSelected)
+        .animation(.easeInOut(duration: 0.15), value: isSelected)
         .contentShape(Rectangle())
     }
 }

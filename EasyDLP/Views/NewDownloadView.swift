@@ -15,15 +15,15 @@ struct NewDownloadView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 24) {
+            VStack(spacing: 20) {
                 headerSection
                 urlInputSection
                 modeSelectionSection
                 optionsSection
                 downloadButton
-                Spacer(minLength: 24)
+                Spacer(minLength: 16)
             }
-            .padding(32)
+            .padding(28)
         }
         .background(Color(nsColor: .windowBackgroundColor))
         .onDrop(of: [.url, .plainText], isTargeted: $showDropHighlight) { providers in
@@ -31,10 +31,10 @@ struct NewDownloadView: View {
         }
         .overlay {
             if showDropHighlight {
-                RoundedRectangle(cornerRadius: 16)
-                    .stroke(Color.brandGold, lineWidth: 3)
-                    .background(Color.brandGold.opacity(0.05), in: RoundedRectangle(cornerRadius: 16))
-                    .padding(8)
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(Color.accentColor.opacity(0.5), lineWidth: 2)
+                    .background(Color.accentColor.opacity(0.03), in: RoundedRectangle(cornerRadius: 10))
+                    .padding(6)
                     .allowsHitTesting(false)
             }
         }
@@ -52,7 +52,7 @@ struct NewDownloadView: View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
                 Text("New Download")
-                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                    .font(.title2.bold())
                 Text("Paste a URL from YouTube, Twitter, Instagram, TikTok, and more")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
@@ -64,10 +64,10 @@ struct NewDownloadView: View {
     // MARK: - URL Input
 
     private var urlInputSection: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 10) {
             Image(systemName: "link")
-                .font(.title3)
-                .foregroundStyle(Color.brandGold)
+                .font(.body)
+                .foregroundStyle(.tertiary)
 
             TextField("Paste video or playlist URL…", text: $url)
                 .textFieldStyle(.plain)
@@ -79,7 +79,7 @@ struct NewDownloadView: View {
                     url = ""
                 } label: {
                     Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.quaternary)
                 }
                 .buttonStyle(.plain)
             }
@@ -93,14 +93,15 @@ struct NewDownloadView: View {
                     .font(.caption)
             }
             .buttonStyle(.bordered)
+            .controlSize(.small)
         }
-        .padding(16)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+        .padding(12)
+        .background(.background, in: RoundedRectangle(cornerRadius: 8))
         .overlay(
-            RoundedRectangle(cornerRadius: 12)
+            RoundedRectangle(cornerRadius: 8)
                 .stroke(
-                    url.isValidURL ? Color.brandGold.opacity(0.5) : Color.clear,
-                    lineWidth: 1.5
+                    url.isValidURL ? Color.accentColor.opacity(0.4) : Color.primary.opacity(0.08),
+                    lineWidth: 0.5
                 )
         )
     }
@@ -108,7 +109,7 @@ struct NewDownloadView: View {
     // MARK: - Mode Selection
 
     private var modeSelectionSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 10) {
             Text("Download Mode")
                 .font(.headline)
 
@@ -118,12 +119,12 @@ struct NewDownloadView: View {
                     GridItem(.flexible()),
                     GridItem(.flexible()),
                 ],
-                spacing: 12
+                spacing: 8
             ) {
                 ForEach(DownloadMode.allCases) { mode in
                     ModeCard(mode: mode, isSelected: selectedMode == mode)
                         .onTapGesture {
-                            withAnimation(.spring(duration: 0.3)) {
+                            withAnimation(.easeInOut(duration: 0.2)) {
                                 selectedMode = mode
                             }
                         }
@@ -139,18 +140,18 @@ struct NewDownloadView: View {
         switch selectedMode {
         case .selectQuality:
             QualityPicker(selectedQuality: $options.quality)
-                .transition(.move(edge: .top).combined(with: .opacity))
+                .transition(.opacity)
 
         case .videoWithSubtitles, .subtitleOnly:
             SubtitlePicker(
                 selectedLanguage: $options.subtitleLanguage,
                 customCode: $options.customSubtitleCode
             )
-            .transition(.move(edge: .top).combined(with: .opacity))
+            .transition(.opacity)
 
         case .playlist:
             PlaylistRangePicker(range: $options.playlistRange)
-                .transition(.move(edge: .top).combined(with: .opacity))
+                .transition(.opacity)
 
         case .customFormat:
             CustomFormatSection(
@@ -161,7 +162,7 @@ struct NewDownloadView: View {
                 isFetching: $isFetchingFormats,
                 onFetch: fetchFormats
             )
-            .transition(.move(edge: .top).combined(with: .opacity))
+            .transition(.opacity)
 
         default:
             EmptyView()
@@ -172,15 +173,15 @@ struct NewDownloadView: View {
 
     private var downloadButton: some View {
         Button(action: startDownload) {
-            HStack(spacing: 8) {
-                Image(systemName: "arrow.down.circle.fill")
+            HStack(spacing: 6) {
+                Image(systemName: "arrow.down.circle")
                 Text("Download")
             }
-            .goldButton()
+            .primaryButton()
         }
         .buttonStyle(.plain)
         .disabled(url.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-        .opacity(url.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? 0.5 : 1.0)
+        .opacity(url.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? 0.4 : 1.0)
     }
 
     // MARK: - Actions
@@ -239,46 +240,44 @@ struct ModeCard: View {
     let isSelected: Bool
 
     var body: some View {
-        VStack(spacing: 10) {
+        VStack(spacing: 8) {
             Image(systemName: mode.systemImage)
-                .font(.title2)
-                .foregroundStyle(isSelected ? .white : Color.brandGold)
-                .frame(width: 36, height: 36)
+                .font(.title3)
+                .foregroundStyle(isSelected ? .white : .secondary)
+                .frame(width: 32, height: 32)
 
-            VStack(spacing: 3) {
+            VStack(spacing: 2) {
                 Text(mode.displayName)
-                    .font(.caption.bold())
+                    .font(.caption.weight(.medium))
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
 
                 Text(mode.description)
                     .font(.caption2)
-                    .foregroundStyle(isSelected ? .white.opacity(0.8) : .secondary)
+                    .foregroundStyle(isSelected ? Color.white.opacity(0.7) : Color.secondary)
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
             }
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 16)
+        .padding(.vertical, 14)
         .padding(.horizontal, 8)
         .background {
             if isSelected {
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(LinearGradient.brand)
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color.accentColor)
             } else {
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(.regularMaterial)
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(.background)
             }
         }
         .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(isSelected ? Color.clear : Color.primary.opacity(0.08), lineWidth: 1)
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(isSelected ? Color.clear : Color.primary.opacity(0.06), lineWidth: 0.5)
         )
         .foregroundStyle(isSelected ? .white : .primary)
-        .scaleEffect(isSelected ? 1.02 : 1.0)
-        .shadow(color: isSelected ? Color.brandGold.opacity(0.3) : .clear, radius: 8, y: 4)
         .contentShape(Rectangle())
-        .animation(.spring(duration: 0.3), value: isSelected)
+        .animation(.easeInOut(duration: 0.15), value: isSelected)
     }
 }
 
@@ -291,11 +290,11 @@ struct PlaylistRangePicker: View {
     @State private var end: Int = 10
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 10) {
             Text("Playlist Options")
                 .font(.headline)
 
-            VStack(spacing: 12) {
+            VStack(spacing: 10) {
                 Toggle("Download specific range", isOn: $useRange)
                     .onChange(of: useRange) { _, newValue in
                         range = newValue ? .range(start: start, end: end) : .all
@@ -343,11 +342,11 @@ struct CustomFormatSection: View {
     let onFetch: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 10) {
             Text("Custom Format")
                 .font(.headline)
 
-            VStack(spacing: 12) {
+            VStack(spacing: 10) {
                 HStack {
                     TextField("Format ID (e.g., 137+140)", text: $formatId)
                         .textFieldStyle(.roundedBorder)
@@ -380,7 +379,7 @@ struct FormatSheetView: View {
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 14) {
             HStack {
                 Text("Available Formats")
                     .font(.headline)
@@ -393,9 +392,13 @@ struct FormatSheetView: View {
                     .font(.system(.caption, design: .monospaced))
                     .textSelection(.enabled)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding()
+                    .padding(12)
             }
-            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
+            .background(.background, in: RoundedRectangle(cornerRadius: 6))
+            .overlay(
+                RoundedRectangle(cornerRadius: 6)
+                    .stroke(Color.primary.opacity(0.06), lineWidth: 0.5)
+            )
 
             HStack {
                 TextField("Enter format ID from the list above", text: $selectedFormatId)
@@ -404,10 +407,9 @@ struct FormatSheetView: View {
                 Button("Use This Format") { dismiss() }
                     .disabled(selectedFormatId.isEmpty)
                     .buttonStyle(.borderedProminent)
-                    .tint(Color.brandGold)
             }
         }
-        .padding(24)
+        .padding(20)
         .frame(width: 700, height: 500)
     }
 }

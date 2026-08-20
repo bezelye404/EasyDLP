@@ -10,17 +10,17 @@ struct DownloadRowView: View {
     let onReveal: () -> Void
 
     var body: some View {
-        HStack(spacing: 14) {
+        HStack(spacing: 12) {
             // File type icon
             fileIcon
 
             // Title, status, and progress
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 3) {
                 Text(task.displayTitle)
-                    .font(.body.bold())
+                    .font(.body.weight(.medium))
                     .lineLimit(1)
 
-                HStack(spacing: 6) {
+                HStack(spacing: 5) {
                     statusBadge
                     Text(task.status.displayText)
                         .font(.caption)
@@ -30,7 +30,7 @@ struct DownloadRowView: View {
 
                 if case .downloading(let progress, _, _) = task.status {
                     ProgressView(value: progress)
-                        .tint(Color.brandGold)
+                        .tint(Color.accentColor)
                 }
             }
 
@@ -44,19 +44,19 @@ struct DownloadRowView: View {
             // Action buttons
             actionButtons
         }
-        .padding(.vertical, 6)
+        .padding(.vertical, 4)
     }
 
     // MARK: - File Icon
 
     private var fileIcon: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 8)
-                .fill(statusColor.opacity(0.12))
-                .frame(width: 40, height: 40)
+            RoundedRectangle(cornerRadius: 6)
+                .fill(statusColor.opacity(0.08))
+                .frame(width: 36, height: 36)
 
             Image(systemName: task.fileTypeIcon)
-                .font(.body)
+                .font(.callout)
                 .foregroundStyle(statusColor)
         }
     }
@@ -68,8 +68,8 @@ struct DownloadRowView: View {
         switch task.status {
         case .downloading:
             Circle()
-                .fill(Color.brandGold)
-                .frame(width: 6, height: 6)
+                .fill(Color.accentColor)
+                .frame(width: 5, height: 5)
 
         case .merging, .converting, .fetching:
             ProgressView()
@@ -113,7 +113,7 @@ struct DownloadRowView: View {
                 if case .failed = task.status {
                     Button(action: onRetry) {
                         Image(systemName: "arrow.clockwise")
-                            .foregroundStyle(Color.brandGold)
+                            .foregroundStyle(.secondary)
                     }
                     .buttonStyle(.plain)
                     .help("Retry download")
@@ -142,7 +142,7 @@ struct DownloadRowView: View {
 
     private var statusColor: Color {
         switch task.status {
-        case .downloading, .merging, .converting, .fetching: Color.brandGold
+        case .downloading, .merging, .converting, .fetching: .accentColor
         case .completed: .green
         case .failed: .red
         case .cancelled: .orange

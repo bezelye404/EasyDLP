@@ -3,22 +3,8 @@ import SwiftUI
 // MARK: - Brand Colors
 
 extension Color {
-    static let brandGold = Color(hue: 0.12, saturation: 0.85, brightness: 0.95)
-    static let brandAmber = Color(hue: 0.08, saturation: 0.90, brightness: 0.85)
-    static let brandOrange = Color(hue: 0.05, saturation: 0.85, brightness: 0.90)
-
-    static let brandGradientStart = Color(hue: 0.13, saturation: 0.80, brightness: 1.0)
-    static let brandGradientEnd = Color(hue: 0.06, saturation: 0.90, brightness: 0.90)
-}
-
-// MARK: - Brand Gradient
-
-extension LinearGradient {
-    static let brand = LinearGradient(
-        colors: [.brandGradientStart, .brandGradientEnd],
-        startPoint: .topLeading,
-        endPoint: .bottomTrailing
-    )
+    /// Primary accent — uses the system accent color for a native macOS feel
+    static let brandAccent = Color.accentColor
 }
 
 // MARK: - View Modifiers
@@ -26,18 +12,21 @@ extension LinearGradient {
 extension View {
     func cardStyle() -> some View {
         self
-            .padding(16)
-            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+            .padding(14)
+            .background(.background, in: RoundedRectangle(cornerRadius: 8))
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.primary.opacity(0.06), lineWidth: 0.5)
+            )
     }
 
-    func goldButton() -> some View {
+    func primaryButton() -> some View {
         self
-            .font(.headline)
+            .font(.body.weight(.medium))
             .foregroundStyle(.white)
-            .padding(.horizontal, 24)
-            .padding(.vertical, 12)
-            .background(LinearGradient.brand, in: Capsule())
-            .shadow(color: .brandGold.opacity(0.3), radius: 8, y: 4)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 8)
+            .background(Color.accentColor, in: RoundedRectangle(cornerRadius: 6))
     }
 }
 

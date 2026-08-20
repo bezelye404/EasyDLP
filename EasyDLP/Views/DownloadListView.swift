@@ -25,7 +25,7 @@ struct DownloadListView: View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
                 Text("Downloads")
-                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                    .font(.title2.bold())
                 Text(summaryText)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
@@ -40,6 +40,7 @@ struct DownloadListView: View {
                     }
                 }
                 .buttonStyle(.bordered)
+                .controlSize(.small)
             }
 
             Button {
@@ -48,8 +49,10 @@ struct DownloadListView: View {
                 Label("Open Folder", systemImage: "folder")
             }
             .buttonStyle(.bordered)
+            .controlSize(.small)
         }
-        .padding(24)
+        .padding(.horizontal, 24)
+        .padding(.vertical, 18)
     }
 
     private var summaryText: String {
@@ -64,13 +67,13 @@ struct DownloadListView: View {
     // MARK: - Empty State
 
     private var emptyState: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 12) {
             Spacer()
             Image(systemName: "arrow.down.circle")
-                .font(.system(size: 48))
+                .font(.system(size: 40))
                 .foregroundStyle(.quaternary)
             Text("No Downloads Yet")
-                .font(.title3.bold())
+                .font(.body.bold())
                 .foregroundStyle(.secondary)
             Text("Start a download from the New Download tab")
                 .font(.subheadline)
