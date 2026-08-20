@@ -23,18 +23,22 @@ class YtDlpService {
     // MARK: - Argument Builder
 
     /// Mirrors the exact yt-dlp flags from the original shell/batch scripts.
-    func buildArguments(for task: DownloadTask, downloadDir: URL) -> [String] {
+    func buildArguments(for task: DownloadTask, downloadDir: URL, ffmpegURL: URL?) -> [String] {
         var args = [String]()
         
         // Add workaround for HTTP 403 Forbidden on YouTube
         args += ["--extractor-args", "youtube:player-client=ios,android,web"]
+        
+        if let ffmpeg = ffmpegURL {
+            args += ["--ffmpeg-location", ffmpeg.path]
+        }
         
         let outputTemplate = downloadDir.appendingPathComponent("%(title)s.%(ext)s").path
 
         switch task.mode {
         case .bestVideo:
             args += [
-                "-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/bestvideo+bestaudio/best",
+                "-f", "bestvideo+bestaudio/best",
                 "--merge-output-format", "mp4",
                 "-o", outputTemplate,
             ]
@@ -51,7 +55,7 @@ class YtDlpService {
             let res = task.options.quality.rawValue
             args += [
                 "-f",
-                "bestvideo[height<=\(res)][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<=\(res)]+bestaudio/best[height<=\(res)]",
+                "bestvideo[height<=\(res)]+bestaudio/best[height<=\(res)]",
                 "--merge-output-format", "mp4",
                 "-o", outputTemplate,
             ]
@@ -61,10 +65,10 @@ class YtDlpService {
                 .appendingPathComponent("Playlist/%(playlist_title)s/%(playlist_index)s - %(title)s.%(ext)s")
                 .path
             args += [
-                "-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best",
+                "-f", "bestvideo+bestaudio/best",
                 "--merge-output-format", "mp4",
-                "--yes-playlist",
                 "-o", playlistTemplate,
+                "--yes-playlist"
             ]
             if case .range(let start, let end) = task.options.playlistRange {
                 args += [
@@ -76,7 +80,7 @@ class YtDlpService {
         case .videoWithSubtitles:
             let lang = task.options.effectiveSubtitleCode
             args += [
-                "-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best",
+                "-f", "bestvideo+bestaudio/best",
                 "--merge-output-format", "mp4",
                 "--write-subs", "--write-auto-subs",
                 "--sub-langs", lang,
@@ -124,7 +128,8 @@ class YtDlpService {
             throw ServiceError.binaryNotFound
         }
 
-        let arguments = buildArguments(for: task, downloadDir: downloadDir)
+        let ffmpegURL = await BinaryManager.shared.ffmpegURL
+        let arguments = buildArguments(for: task, downloadDir: downloadDir, ffmpegURL: ffmpegURL)
         let environment = await BinaryManager.shared.buildEnvironment()
 
         // Ensure download directory exists
