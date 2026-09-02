@@ -1,4 +1,5 @@
 import Foundation
+import os
 
 // MARK: - YtDlp Service
 
@@ -130,16 +131,15 @@ class YtDlpService {
         onEvent: @escaping @Sendable (OutputEvent) -> Void
     ) async throws {
         guard let ytDlpURL = await BinaryManager.shared.ytDlpURL else {
+            AppLogger.error(.service, "yt-dlp binary not found — cannot execute download")
             throw ServiceError.binaryNotFound
         }
 
         let ffmpegURL = await BinaryManager.shared.ffmpegURL
         let arguments = buildArguments(for: task, downloadDir: downloadDir, ffmpegURL: ffmpegURL)
 
-        // Debug: log the full command so we can diagnose issues
-        print("▶ yt-dlp binary: \(ytDlpURL.path)")
-        print("▶ ffmpeg: \(ffmpegURL?.path ?? "NOT FOUND")")
-        print("▶ full command: \(ytDlpURL.path) \(arguments.joined(separator: " "))")
+        AppLogger.info(.service, "Starting download — mode: \(task.mode.rawValue), binary: \(ytDlpURL.path), ffmpeg: \(ffmpegURL?.path ?? "NOT FOUND")")
+        AppLogger.debug(.service, "Full command: \(ytDlpURL.path) \(arguments.joined(separator: " "))")
 
         // Ensure download directory exists
         try FileManager.default.createDirectory(
@@ -190,7 +190,7 @@ class YtDlpService {
             else { return }
 
             for line in text.components(separatedBy: .newlines) where !line.isEmpty {
-                print("yt-dlp stderr: \(line)")
+                AppLogger.debug(.service, "yt-dlp stderr: \(line)")
                 if let event = OutputParser.parse(line: line) {
                     onEvent(event)
                 }
@@ -217,9 +217,13 @@ class YtDlpService {
         }
 
         if process.terminationStatus != 0 && !wasCancelled {
-            throw ServiceError.processError(
-                "yt-dlp exited with code \(process.terminationStatus)"
-            )
+            let errorMsg = "yt-dlp exited with code \(process.terminationStatus)"
+            AppLogger.error(.service, errorMsg)
+            throw ServiceError.processError(errorMsg)
+        }
+
+        if !wasCancelled {
+            AppLogger.info(.service, "Download process completed successfully")
         }
     }
 
@@ -228,10 +232,11 @@ class YtDlpService {
     /// Runs `yt-dlp -F <url>` and returns the raw output for display.
     func fetchFormats(url: String) async throws -> String {
         guard let ytDlpURL = await BinaryManager.shared.ytDlpURL else {
+            AppLogger.error(.service, "yt-dlp binary not found — cannot fetch formats")
             throw ServiceError.binaryNotFound
         }
 
-
+        AppLogger.info(.service, "Fetching available formats for URL")
 
         let process = Process()
         let pipe = Pipe()
@@ -251,6 +256,8 @@ class YtDlpService {
         }
 
         let data = pipe.fileHandleForReading.readDataToEndOfFile()
-        return String(data: data, encoding: .utf8) ?? "No format information available."
+        let output = String(data: data, encoding: .utf8) ?? "No format information available."
+        AppLogger.info(.service, "Format fetch completed (\(output.components(separatedBy: .newlines).count) lines)")
+        return output
     }
 }

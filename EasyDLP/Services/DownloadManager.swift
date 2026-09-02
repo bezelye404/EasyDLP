@@ -1,6 +1,7 @@
 import Foundation
 import Observation
 import AppKit
+import os
 
 // MARK: - Download Manager
 
@@ -51,10 +52,12 @@ class DownloadManager {
     func startDownload(url: String, mode: DownloadMode, options: DownloadOptions) {
         let task = DownloadTask(url: url, mode: mode, options: options)
         downloads.insert(task, at: 0)
+        AppLogger.info(.downloads, "Queued download — mode: \(mode.rawValue), url: \(url.prefix(80))")
         Task { await executeDownload(task) }
     }
 
     func cancelDownload(_ task: DownloadTask) {
+        AppLogger.info(.downloads, "Cancelling download: \(task.displayTitle)")
         task.status = .cancelled
         task.process?.terminate()
     }
@@ -63,10 +66,12 @@ class DownloadManager {
         if task.status.isActive {
             cancelDownload(task)
         }
+        AppLogger.info(.downloads, "Removed download: \(task.displayTitle)")
         downloads.removeAll { $0.id == task.id }
     }
 
     func retryDownload(_ task: DownloadTask) {
+        AppLogger.info(.downloads, "Retrying download: \(task.displayTitle)")
         task.status = .queued
         task.outputLines.removeAll()
         Task { await executeDownload(task) }
@@ -92,12 +97,16 @@ class DownloadManager {
     func saveSettings() {
         UserDefaults.standard.set(downloadDirectory.path, forKey: "downloadDirectory")
         UserDefaults.standard.set(maxConcurrentDownloads, forKey: "maxConcurrentDownloads")
+        AppLogger.debug(.downloads, "Settings saved — dir: \(downloadDirectory.lastPathComponent), concurrent: \(maxConcurrentDownloads)")
     }
 
     // MARK: - Private
 
     private func executeDownload(_ task: DownloadTask) async {
-        await MainActor.run { task.status = .fetching }
+        await MainActor.run {
+            task.status = .fetching
+            AppLogger.info(.downloads, "Download started — fetching info for: \(task.displayTitle)")
+        }
 
         do {
             try await ytDlpService.execute(
@@ -112,11 +121,13 @@ class DownloadManager {
             await MainActor.run {
                 if case .cancelled = task.status { return }
                 task.status = .completed
+                AppLogger.info(.downloads, "Download completed: \(task.displayTitle)")
             }
         } catch {
             await MainActor.run {
                 if case .cancelled = task.status { return }
                 task.status = .failed(error: error.localizedDescription)
+                AppLogger.warning(.downloads, "Download failed: \(task.displayTitle) — \(error.localizedDescription)")
             }
         }
     }

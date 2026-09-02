@@ -5,6 +5,7 @@ import SwiftUI
 enum SidebarItem: String, Identifiable, CaseIterable {
     case newDownload = "New Download"
     case downloads = "Downloads"
+    case debugLog = "Debug Log"
 
     var id: String { rawValue }
 
@@ -12,6 +13,7 @@ enum SidebarItem: String, Identifiable, CaseIterable {
         switch self {
         case .newDownload: "plus.circle"
         case .downloads: "arrow.down.circle"
+        case .debugLog: "ladybug"
         }
     }
 }
@@ -96,6 +98,8 @@ struct MainView: View {
             NewDownloadView(downloadManager: downloadManager)
         case .downloads:
             DownloadListView(downloadManager: downloadManager)
+        case .debugLog:
+            DebugConsoleView()
         }
     }
 }

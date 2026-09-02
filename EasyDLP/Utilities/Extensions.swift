@@ -3,7 +3,7 @@ import SwiftUI
 // MARK: - Brand Colors
 
 extension Color {
-    /// Primary accent — uses the system accent color for a native macOS feel
+    /// Primary accent
     static let brandAccent = Color.accentColor
 }
 

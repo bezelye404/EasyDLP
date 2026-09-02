@@ -1,4 +1,5 @@
 import Foundation
+import os
 
 // MARK: - Download Progress
 
@@ -121,9 +122,11 @@ struct OutputParser {
 
         // Generic info lines
         if line.contains("[download]") || line.contains("[info]") || line.contains("[youtube]") {
+            AppLogger.debug(.parser, "Info: \(line.prefix(120))")
             return .info(line)
         }
 
+        AppLogger.debug(.parser, "Unrecognised line: \(line.prefix(120))")
         return nil
     }
 

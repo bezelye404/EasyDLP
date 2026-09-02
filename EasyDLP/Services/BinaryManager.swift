@@ -1,4 +1,5 @@
 import Foundation
+import os
 
 // MARK: - Binary Manager
 
@@ -31,15 +32,18 @@ actor BinaryManager {
         // 1. Bundled binaries inside the .app
         if let bundledURL = Bundle.main.resourceURL?.appendingPathComponent("bin/\(name)") {
             if FileManager.default.isExecutableFile(atPath: bundledURL.path) {
+                AppLogger.info(.binary, "Found \(name) in app bundle: \(bundledURL.path)")
                 return bundledURL
             }
             // Try fixing permissions
             if FileManager.default.fileExists(atPath: bundledURL.path) {
+                AppLogger.debug(.binary, "\(name) exists in bundle but not executable, attempting chmod")
                 try? FileManager.default.setAttributes(
                     [.posixPermissions: 0o755],
                     ofItemAtPath: bundledURL.path
                 )
                 if FileManager.default.isExecutableFile(atPath: bundledURL.path) {
+                    AppLogger.info(.binary, "Fixed permissions for bundled \(name)")
                     return bundledURL
                 }
             }
@@ -53,12 +57,20 @@ actor BinaryManager {
         ]
         for path in searchPaths {
             if FileManager.default.isExecutableFile(atPath: path) {
+                AppLogger.info(.binary, "Found \(name) at system path: \(path)")
                 return URL(fileURLWithPath: path)
             }
         }
+        AppLogger.debug(.binary, "\(name) not found in common system paths, trying 'which'")
 
         // 3. Fallback: ask the shell via `which`
-        return whichBinary(name)
+        let result = whichBinary(name)
+        if let result {
+            AppLogger.info(.binary, "Found \(name) via 'which': \(result.path)")
+        } else {
+            AppLogger.warning(.binary, "\(name) not found anywhere")
+        }
+        return result
     }
 
     var ytDlpURL: URL? {
@@ -73,6 +85,7 @@ actor BinaryManager {
 
     func ytDlpVersion() async throws -> String {
         guard let url = ytDlpURL else {
+            AppLogger.warning(.binary, "Cannot check yt-dlp version — binary not found")
             throw BinaryError.notFound("yt-dlp")
         }
 
@@ -87,14 +100,19 @@ actor BinaryManager {
         process.waitUntilExit()
 
         let data = pipe.fileHandleForReading.readDataToEndOfFile()
-        return String(data: data, encoding: .utf8)?
+        let version = String(data: data, encoding: .utf8)?
             .trimmingCharacters(in: .whitespacesAndNewlines) ?? "Unknown"
+        AppLogger.info(.binary, "yt-dlp version: \(version)")
+        return version
     }
 
     func updateYtDlp() async throws -> String {
         guard let url = ytDlpURL else {
+            AppLogger.warning(.binary, "Cannot update yt-dlp — binary not found")
             throw BinaryError.notFound("yt-dlp")
         }
+
+        AppLogger.info(.binary, "Starting yt-dlp update")
 
         let process = Process()
         let pipe = Pipe()
@@ -110,8 +128,10 @@ actor BinaryManager {
         let output = String(data: data, encoding: .utf8) ?? ""
 
         if process.terminationStatus != 0 {
+            AppLogger.error(.binary, "yt-dlp update failed: \(output)")
             throw BinaryError.updateFailed(output)
         }
+        AppLogger.info(.binary, "yt-dlp update completed: \(output.prefix(200))")
         return output
     }
 
@@ -137,6 +157,7 @@ actor BinaryManager {
         }
 
         env["PATH"] = paths.joined(separator: ":")
+        AppLogger.debug(.binary, "Built environment PATH: \(paths.prefix(4).joined(separator: ":"))...")
         return env
     }
 
