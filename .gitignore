@@ -118,3 +118,7 @@ Fixtures/
 .history/
 *.history
 .cache/
+
+# build outputs
+.build/
+.dmg
