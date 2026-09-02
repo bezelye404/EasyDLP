@@ -1,22 +1,127 @@
 # system files we don't want leaking
 .DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
 Thumbs.db
 desktop.ini
 
 # ide and config stuff
 .vscode/
 .idea/
-.env
 
-# keep downloaded videos and audio out of the repo
+# keep downloaded videos and audio out of the repo (Strict)
 *.mp4
 *.mp3
 *.m4a
 *.srt
 *.mkv
 *.webm
+*.vtt
+*.part
+*.ytdl
 Playlist/
 Downloads/
+Test/
+temp/
+tmp/
+out/
+output/
 
-# logs
+# Logs & Databases
 *.log
+*.sqlite
+*.sqlite3
+*.db
+
+# Xcode
+build/
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+*.xcuserdata
+xcuserdata/
+*.xccheckout
+*.moved-aside
+DerivedData/
+*.hmap
+*.ipa
+*.xcuserstate
+*.xcworkspace
+project.xcworkspace/
+
+# Generated Xcode project (regenerate with: xcodegen generate)
+EasyDLP.xcodeproj/
+
+# Bundled binaries (too large for git)
+EasyDLP/Resources/bin/
+
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# Carthage
+Carthage/Build/
+
+# Credentials & Secrets
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.cer
+*.provisionprofile
+credentials.json
+secrets.json
+config.local.json
+config.json
+
+# yt-dlp specific cookies, auth, and history
+*.netrc
+*cookies.txt
+*.cookie
+yt-dlp-cookies.txt
+yt-dlp-cache/
+
+# Test results and artifacts (often contain sensitive info/screenshots)
+*.xcresult/
+TestResults/
+coverage/
+*.coverage
+test_output/
+
+# Mock & Fixture data (prevent committing accidental real data)
+MockData/
+TestData/
+Fixtures/
+
+# Common sensitive data dumps
+*.csv
+*.tsv
+*.bak
+*.swp
+
+# macOS history and caches
+.history/
+*.history
+.cache/
+
+# build outputs
+build-output/
+.build-output/
+.build/
+*.dmg
+

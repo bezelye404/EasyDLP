@@ -1,0 +1,52 @@
+name: EasyDLP
+options:
+  bundleIdPrefix: com.easydlp
+  deploymentTarget:
+    macOS: "14.0"
+  xcodeVersion: "16.0"
+  generateEmptyDirectories: true
+  groupSortPosition: top
+
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MACOSX_DEPLOYMENT_TARGET: "14.0"
+    GENERATE_INFOPLIST_FILE: false
+
+targets:
+  EasyDLP:
+    type: application
+    platform: macOS
+    sources:
+      - path: EasyDLP
+        excludes:
+          - "**/*.entitlements"
+          - "Info.plist"
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.easydlp.macos
+        INFOPLIST_FILE: EasyDLP/Info.plist
+        CODE_SIGN_ENTITLEMENTS: EasyDLP/EasyDLP.entitlements
+        CODE_SIGN_STYLE: Automatic
+        SWIFT_VERSION: "5.0"
+        MACOSX_DEPLOYMENT_TARGET: "14.0"
+        SWIFT_STRICT_CONCURRENCY: minimal
+        COMBINE_HIDPI_IMAGES: true
+    info:
+      path: EasyDLP/Info.plist
+
+  EasyDLPTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: EasyDLPTests
+    dependencies:
+      - target: EasyDLP
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.easydlp.macos.tests
+        SWIFT_VERSION: "5.0"
+        MACOSX_DEPLOYMENT_TARGET: "14.0"
+        GENERATE_INFOPLIST_FILE: true
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/EasyDLP.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/EasyDLP"
+        BUNDLE_LOADER: "$(TEST_HOST)"
