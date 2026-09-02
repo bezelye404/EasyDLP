@@ -120,6 +120,8 @@ Fixtures/
 .cache/
 
 # build outputs
+build-output/
 .build-output/
 .build/
-.dmg
+*.dmg
+
