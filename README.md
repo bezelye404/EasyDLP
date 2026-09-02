@@ -6,7 +6,6 @@ Just a quick guide to getting the scripts up and running on Windows, Linux, or W
 ## macOS guide
 
 just run .dmg. install the app via dragging the icon in the applications folder. that's it.
----
 
 ---
 
